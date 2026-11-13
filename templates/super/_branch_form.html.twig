@@ -1,0 +1,10 @@
+<form method="post" action="{{ action }}" class="grid-form" style="margin-top:1rem">
+    <input type="hidden" name="_token" value="{{ csrf_token('app') }}">
+    <div><label>Branch name</label><input name="name" value="{{ branch ? branch.name : '' }}" required></div>
+    <div><label>City</label><input name="city" value="{{ branch ? branch.city : '' }}" required></div>
+    <div><label>Phone</label><input name="phone" value="{{ branch ? branch.phone : '' }}"></div>
+    <div style="grid-column:1/-1"><label>Address</label><input name="address" value="{{ branch ? branch.address : '' }}"></div>
+    <div style="grid-column:1/-1"><label>Tagline</label><input name="tagline" value="{{ branch ? branch.tagline : '' }}"></div>
+    <div style="grid-column:1/-1"><label>Description</label><textarea name="description" rows="3">{{ branch ? branch.description : '' }}</textarea></div>
+    <div><button class="btn">{{ branch ? 'Save branch' : 'Add branch' }}</button></div>
+</form>

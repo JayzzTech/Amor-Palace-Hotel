@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Access denied · Amor Palace Hotel{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    <div class="auth-card card">
+        <span class="auth-kicker">Amor Palace</span>
+        <h1>Access denied</h1>
+        <p class="muted">You do not have permission to view this area. If you believe this is a mistake, please contact a hotel administrator.</p>
+        <div class="row-between" style="margin-top:1.5rem; gap: .75rem; flex-wrap: wrap">
+            <a class="btn" href="{{ path('app_home') }}">Back to homepage</a>
+            {% if app.user %}<a class="btn btn-ghost" href="{{ path('app_account') }}">Go to my stays</a>{% else %}<a class="btn btn-ghost" href="{{ path('app_login') }}">Sign in</a>{% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

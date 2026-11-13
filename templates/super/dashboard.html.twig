@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+{% block title %}Super admin · Amor Palace Hotel{% endblock %}
+{% block body %}
+<div class="wrap dashboard-page group-dashboard">
+    <div class="dash-head dashboard-heading"><p class="eyebrow dark">Administration</p><h1>Group overview</h1>
+        <p class="muted">All branches, people and reservations across Amor Palace Hotel.</p></div>
+    <div class="stats">
+        <div class="stat"><b>₱{{ totals.revenue|number_format }}</b><span>Booked revenue</span></div>
+        <div class="stat"><b>{{ totals.reservations }}</b><span>Reservations</span></div>
+        <div class="stat"><b>{{ totals.pending }}</b><span>Awaiting confirmation</span></div>
+        <div class="stat"><b>{{ totals.users }}</b><span>Registered users</span></div>
+    </div>
+
+    <div class="panel dashboard-panel">
+        <div class="panel-heading"><div><span class="panel-kicker">Portfolio</span><h3>Branches</h3></div></div>
+        <div class="table-wrap"><table>
+            <thead><tr><th>Branch</th><th>Status</th><th>City</th><th>Rooms</th><th>In house</th><th>Pending</th><th>Revenue</th><th></th></tr></thead>
+            <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td><b>{{ row.branch.name }}</b><br><span class="muted small">{{ row.branch.phone }}</span></td>
+                    <td>{{ row.branch.active ? 'Open' : 'Archived' }}</td><td>{{ row.branch.city }}</td><td>{{ row.rooms }}</td><td>{{ row.inhouse }}</td><td>{{ row.pending }}</td>
+                    <td>₱{{ row.revenue|number_format }}</td>
+                    <td>{% if row.branch.active %}<a class="btn btn-ghost btn-sm" href="{{ path('app_staff', {branch: row.branch.id}) }}">Open front desk</a>{% endif %}</td>
+                </tr>
+                {% if row.branch.active %}<tr><td colspan="8" style="padding-top:0"><details><summary>Edit {{ row.branch.name }}</summary>
+                    {% include 'super/_branch_form.html.twig' with {branch: row.branch, action: path('app_super_branch_save', {id: row.branch.id})} %}
+                </details></td></tr>{% endif %}
+            {% endfor %}
+            </tbody>
+        </table></div>
+        <details><summary>Add a branch</summary>
+            {% include 'super/_branch_form.html.twig' with {branch: null, action: path('app_super_branch_save')} %}
+        </details>
+    </div>
+
+    <div class="panel dashboard-panel">
+        <div class="panel-heading"><div><span class="panel-kicker">Team</span><h3>People and access</h3></div></div>
+        <div class="table-wrap"><table>
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Branch</th><th></th></tr></thead>
+            <tbody>
+            {% for u in users %}
+                <tr>
+                    <td>{{ u.fullName }}</td><td>{{ u.email }}</td>
+                    <td colspan="3">
+                        <form class="inline-form" method="post" action="{{ path('app_super_user_save', {id: u.id}) }}" data-confirm="Update {{ u.fullName }}'s role and branch access?">
+                            <input type="hidden" name="_token" value="{{ csrf_token('app') }}">
+                            <select name="role" aria-label="Role for {{ u.fullName }}">{% for k, label in roles %}<option value="{{ k }}" {{ u.primaryRole == k ? 'selected' : '' }}>{{ label }}</option>{% endfor %}</select>
+                            <select name="branch" aria-label="Branch for {{ u.fullName }}"><option value="">No branch</option>{% for b in branches %}{% if b.active %}<option value="{{ b.id }}" {{ u.branch and u.branch.id == b.id ? 'selected' : '' }}>{{ b.name }}</option>{% endif %}{% endfor %}</select>
+                            <button class="btn btn-ghost btn-sm">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table></div>
+        <details><summary>Add a staff member or admin</summary>
+            <form method="post" action="{{ path('app_super_user_save') }}" class="grid-form" style="margin-top:1rem">
+                <input type="hidden" name="_token" value="{{ csrf_token('app') }}">
+                <div><label>Full name</label><input name="name" required></div>
+                <div><label>Email</label><input type="email" name="email" required></div>
+                <div><label>Temporary password</label><input type="password" name="password" minlength="8" required></div>
+                <div><label>Role</label><select name="role">{% for k, label in roles %}<option value="{{ k }}" {{ k == 'ROLE_STAFF' ? 'selected' : '' }}>{{ label }}</option>{% endfor %}</select></div>
+                <div><label>Branch</label><select name="branch"><option value="">No branch</option>{% for b in branches %}{% if b.active %}<option value="{{ b.id }}">{{ b.name }}</option>{% endif %}{% endfor %}</select></div>
+                <div><button class="btn">Create user</button></div>
+            </form>
+        </details>
+    </div>
+
+    <div class="panel dashboard-panel">
+        <div class="panel-heading"><div><span class="panel-kicker">Activity</span><h3>Latest reservations</h3></div></div>
+        <div class="table-wrap"><table>
+            <thead><tr><th>Reference</th><th>Guest</th><th>Branch</th><th>Room</th><th>Dates</th><th>Total</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for r in recent %}
+                <tr><td><b>{{ r.reference }}</b></td><td>{{ r.guest.fullName }}</td><td>{{ r.room.branch.name }}</td><td>{{ r.room.number }}, {{ r.room.type }}</td>
+                    <td>{{ r.checkIn|date('d M') }} to {{ r.checkOut|date('d M Y') }}</td><td>₱{{ r.total|number_format }}</td>
+                    <td><span class="badge badge-{{ r.status }}">{{ r.status|replace({'_': ' '})|capitalize }}</span></td></tr>
+            {% else %}<tr><td colspan="7">No reservations yet.</td></tr>{% endfor %}
+            </tbody>
+        </table></div>
+    </div>
+</div>
+{% endblock %}

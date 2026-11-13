@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block title %}Sign in · Amor Palace Hotel{% endblock %}
+{% block body %}
+<div class="auth-page"><div class="auth-card card">
+    <span class="auth-kicker">Amor Palace</span>
+    <h1>Welcome back</h1>
+    {% if error %}<div class="alert-error">{% if error.messageKey == 'Too many failed sign-in attempts. Please try again in 15 minutes.' %}{{ error.messageKey|trans(error.messageData, 'security') }}{% else %}Your email or password is incorrect. Check them and try again.{% endif %}</div>{% endif %}
+    <form method="post">
+        <div class="field"><label for="u">Email</label><input id="u" type="email" name="_username" value="{{ last }}" autocomplete="email" required autofocus></div>
+        <div class="field"><label for="p">Password</label><input id="p" type="password" name="_password" autocomplete="current-password" required></div>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        <button class="btn" type="submit" style="width:100%">Sign in</button>
+    </form>
+    <p class="small" style="margin-top:1rem">New to Amor Palace Hotel? <a href="{{ path('app_register') }}">Create an account</a>.</p>
+    <div class="hint">Demo accounts (after <code>app:seed</code>), password <b>Password123!</b>:<br>
+        guest@amor.test, staff@amor.test, amorloco@amor.test, miamor@amor.test, lynmore@amor.test, super@amor.test</div>
+</div></div>
+{% endblock %}

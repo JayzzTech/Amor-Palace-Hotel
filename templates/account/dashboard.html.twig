@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+{% block title %}My stays · Amor Palace Hotel{% endblock %}
+{% block body %}
+<section class="guest-dashboard-page">
+    <div class="wrap dashboard-page guest-dashboard">
+        <div class="guest-dashboard-hero">
+            <div><p class="eyebrow dark">Guest portal</p><h1>Welcome back, {{ app.user.fullName|split(' ')|first }}</h1><p>Manage your stays and upcoming hotel reservations.</p></div>
+            <a class="btn" href="{{ path('app_home') }}#branches">Book a new stay</a>
+        </div>
+
+        <div class="guest-stats" aria-label="Reservation summary">
+            <article class="guest-stat-card"><span class="guest-stat-icon">⌂</span><div><strong>{{ upcoming }}</strong><span>Upcoming stays</span></div></article>
+            <article class="guest-stat-card"><span class="guest-stat-icon">✓</span><div><strong>{{ completed }}</strong><span>Completed stays</span></div></article>
+            <article class="guest-stat-card"><span class="guest-stat-icon">₱</span><div><strong>₱{{ spent|number_format }}</strong><span>Total booked</span></div></article>
+        </div>
+
+        <section class="panel guest-bookings-panel">
+            <div class="guest-bookings-heading">
+                <div><p class="panel-kicker">My bookings</p><h2>Reservations</h2></div>
+                <span>{{ reservations|length }} {{ reservations|length == 1 ? 'stay' : 'stays' }}</span>
+            </div>
+            {% if reservations %}
+            <div class="guest-bookings-list">
+                {% for r in reservations %}
+                <article class="guest-booking-card">
+                    <div class="guest-booking-main">
+                        <span class="guest-booking-reference">{{ r.reference }}</span>
+                        <h3>{{ r.room.branch.name }}</h3>
+                        <p>{{ r.room.type }} · Room {{ r.room.number }}</p>
+                    </div>
+                    <div class="guest-booking-date"><span>Stay dates</span><strong>{{ r.checkIn|date('d M Y') }} — {{ r.checkOut|date(r.nights > 0 ? 'd M Y' : 'd M Y, H:i') }}</strong><small>{{ r.nights > 0 ? r.nights ~ ' ' ~ (r.nights == 1 ? 'night' : 'nights') : r.durationHours ~ ' hours' }} · {{ r.guests }} {{ r.guests == 1 ? 'guest' : 'guests' }}</small></div>
+                    <div class="guest-booking-total"><span>Total</span><strong>₱{{ r.total|number_format }}</strong></div>
+                    <div class="guest-booking-action"><span class="badge badge-{{ r.status }}">{{ r.status|replace({'_': ' '})|capitalize }}</span>{% if r.cancellable %}<form method="post" action="{{ path('app_cancel', {id: r.id}) }}" data-confirm="Cancel reservation {{ r.reference }}?"><input type="hidden" name="_token" value="{{ csrf_token('app') }}"><button class="cancel-link" type="submit">Cancel reservation</button></form>{% endif %}</div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="guest-empty"><h3>No reservations yet</h3><p>Your next memorable stay starts here.</p><a class="btn" href="{{ path('app_home') }}#branches">Choose a hotel</a></div>
+            {% endif %}
+        </section>
+    </div>
+</section>
+{% endblock %}

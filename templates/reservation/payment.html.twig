@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+{% block title %}Payment · {{ reservation.reference }}{% endblock %}
+{% block body %}
+<section class="section payment-page">
+    <div class="wrap payment-layout">
+        <div class="panel payment-panel">
+            <span class="auth-kicker">Secure payment</span>
+            <h1>Complete your payment</h1>
+            <p class="muted">Your room is held while payment is completed. Scan the QR code or choose a payment method, then confirm payment to finalize reservation <strong>{{ reservation.reference }}</strong>.</p>
+            <div class="payment-qr" role="img" aria-label="Payment QR code">
+                <div class="qr-marker top-left"></div><div class="qr-marker top-right"></div><div class="qr-marker bottom-left"></div>
+                <div class="qr-data" aria-hidden="true"></div>
+            </div>
+            <p class="payment-amount"><span>Amount due</span><strong>₱{{ reservation.total|number_format }}</strong></p>
+        </div>
+        <form method="post" class="panel payment-method-panel">
+            <input type="hidden" name="_token" value="{{ csrf_token('app') }}">
+            <p class="eyebrow dark">Payment method</p>
+            <h2>How would you like to pay?</h2>
+            <label class="payment-method">
+                <input type="radio" name="payment_method" value="credit-card" required>
+                <span><b>Credit / Debit Card</b><small>Visa, Mastercard and other cards</small></span>
+            </label>
+            <label class="payment-method">
+                <input type="radio" name="payment_method" value="instapay">
+                <span><b>InstaPay</b><small>Pay securely through your bank app</small></span>
+            </label>
+            <p class="small muted">Payment must be completed before the reservation can be confirmed.</p>
+            <button class="btn" type="submit">Pay and confirm reservation</button>
+        </form>
+        <form method="post" action="{{ path('app_cancel', {id: reservation.id}) }}" class="payment-cancel-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('app') }}">
+            <button class="btn btn-ghost" type="submit">Cancel payment</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

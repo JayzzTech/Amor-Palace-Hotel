@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Amor Palace Hotel{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="theme-color" content="#281d16">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('app.css') }}?v=3">
+</head>
+<body>
+<header class="site-header">
+    <div class="wrap">
+        <a class="brand" href="{{ path('app_home') }}">Amor Palace Hotel</a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
+        <nav class="nav" id="main-navigation" aria-label="Main">
+            <a href="{{ path('app_home') }}#branches">Our hotels</a>
+            {% if is_granted('ROLE_USER') %}
+                <a href="{{ path('app_account') }}">My stays</a>
+                {% if is_granted('ROLE_STAFF') %}<a href="{{ path('app_staff') }}">Front desk</a>{% endif %}
+                {% if is_granted('ROLE_SUPER_ADMIN') %}<a href="{{ path('app_super') }}">Super admin</a>{% endif %}
+                <a class="btn btn-ghost btn-sm" href="{{ path('app_logout') }}">Sign out</a>
+            {% else %}
+                <a href="{{ path('app_login') }}">Sign in</a>
+                <a class="btn btn-sm" href="{{ path('app_register') }}">Create account</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+<main>
+    {% set notifications = app.flashes %}
+    {% if notifications %}
+    <div class="notifications" aria-live="polite" aria-label="Notifications">
+        {% for type, messages in notifications %}{% for message in messages %}
+            <div class="flash flash-{{ type }}" role="status">
+                <span class="notification-icon" aria-hidden="true">{{ type == 'success' ? '✓' : (type == 'error' ? '!' : 'i') }}</span>
+                <span>{{ message }}</span>
+                <button class="notification-close" type="button" aria-label="Dismiss notification">×</button>
+            </div>
+        {% endfor %}{% endfor %}
+    </div>
+    {% endif %}
+    {% block body %}{% endblock %}
+</main>
+<footer class="site-footer">
+    <div class="wrap row-between">
+        <span class="brand">Amor Palace Hotel</span>
+        <span>Amor Loco Hotel · Mi Amor Hotel</span>
+    </div>
+</footer>
+<dialog class="confirm-dialog" id="confirm-dialog">
+    <form method="dialog">
+        <span class="dialog-icon" aria-hidden="true">!</span>
+        <h2>Confirm action</h2>
+        <p id="confirm-message">Are you sure?</p>
+        <div class="dialog-actions"><button class="btn btn-ghost" value="cancel">Keep it</button><button class="btn btn-danger" id="confirm-action" value="confirm">Confirm</button></div>
+    </form>
+</dialog>
+<script>
+const navToggle = document.querySelector('.nav-toggle');
+const mainNavigation = document.querySelector('#main-navigation');
+navToggle?.addEventListener('click', () => {
+    const isOpen = navToggle.getAttribute('aria-expanded') === 'true';
+    navToggle.setAttribute('aria-expanded', String(!isOpen));
+    navToggle.textContent = isOpen ? 'Menu' : 'Close';
+    mainNavigation?.classList.toggle('is-open', !isOpen);
+});
+mainNavigation?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
+    navToggle?.setAttribute('aria-expanded', 'false');
+    navToggle.textContent = 'Menu';
+    mainNavigation.classList.remove('is-open');
+}));
+document.querySelectorAll('.notification-close').forEach((button) => {
+    button.addEventListener('click', () => button.closest('.flash')?.remove());
+});
+document.querySelectorAll('.flash').forEach((notification) => {
+    window.setTimeout(() => {
+        notification.classList.add('is-leaving');
+        window.setTimeout(() => notification.remove(), 220);
+    }, 5000);
+});
+const confirmDialog = document.querySelector('#confirm-dialog');
+let confirmedForm = null;
+document.querySelectorAll('[data-confirm]').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        confirmedForm = form;
+        document.querySelector('#confirm-message').textContent = form.dataset.confirm;
+        confirmDialog.showModal();
+    });
+});
+document.querySelector('#confirm-action')?.addEventListener('click', () => {
+    if (confirmedForm) confirmedForm.submit();
+});
+document.querySelectorAll('[data-extension-unit]').forEach((select) => {
+    const syncUnitLimit = () => {
+        const amount = select.form?.querySelector('[name="amount"]');
+        if (amount) amount.max = select.value === 'days' ? '30' : '72';
+    };
+    select.addEventListener('change', syncUnitLimit);
+    syncUnitLimit();
+});
+</script>
+</body>
+</html>

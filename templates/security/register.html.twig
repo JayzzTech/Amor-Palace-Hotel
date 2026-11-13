@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+{% block title %}Create account · Amor Palace Hotel{% endblock %}
+{% block body %}
+<div class="auth-page"><div class="auth-card card">
+    <span class="auth-kicker">Join Amor Palace</span>
+    <h1>Create your account</h1>
+    {% if errors %}<div class="alert-error"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+    <form method="post">
+        <div class="field"><label for="n">Full name</label><input id="n" name="name" value="{{ f.name }}" required></div>
+        <div class="field"><label for="e">Email</label><input id="e" type="email" name="email" value="{{ f.email }}" required></div>
+        <div class="field"><label for="ph">Mobile number (optional)</label><input id="ph" type="tel" name="phone" value="{{ f.phone }}" autocomplete="tel"></div>
+        <div class="field"><label for="pw">Password (8+ characters)</label><input id="pw" type="password" name="password" minlength="8" autocomplete="new-password" required></div>
+        <div class="field"><label for="pwc">Confirm password</label><input id="pwc" type="password" name="password_confirm" minlength="8" autocomplete="new-password" required></div>
+        <div class="consent-field">
+            <input id="terms" type="checkbox" name="terms" value="1" aria-label="Agree to the Terms and Privacy Policy" required>
+            <span class="consent-copy">I agree to the <button class="legal-link" type="button" data-legal-dialog="terms-dialog">Terms</button> and <button class="legal-link" type="button" data-legal-dialog="privacy-dialog">Privacy Policy</button>.</span>
+        </div>
+        <input type="hidden" name="_token" value="{{ csrf_token('app') }}">
+        <button class="btn" type="submit" style="width:100%">Create account</button>
+    </form>
+    <p class="small" style="margin-top:1rem">Already registered? <a href="{{ path('app_login') }}">Sign in</a>.</p>
+</div></div>
+<dialog class="legal-dialog" id="terms-dialog" aria-labelledby="terms-title">
+    <div class="legal-dialog-content">
+        <div class="legal-dialog-heading"><span class="auth-kicker">Amor Palace Hotel</span><button class="legal-dialog-close" type="button" data-close-legal aria-label="Close Terms">&times;</button></div>
+        <h2 id="terms-title">Terms of Service</h2>
+        <p>By creating an account and making a reservation, you agree to provide accurate information and follow the hotel rules.</p>
+        <h3>Reservations and payment</h3>
+        <p>A reservation is held while payment is completed. Your stay is confirmed only after successful payment.</p>
+        <h3>Check-in and conduct</h3>
+        <p>Guests must present valid identification at check-in and follow the hotel's stated rules and quiet hours.</p>
+        <h3>Cancellation</h3>
+        <p>Pending or confirmed reservations may be cancelled online before check-in. Refunds are subject to the hotel's applicable policy.</p>
+        <button class="btn legal-dialog-action" type="button" data-close-legal>Close</button>
+    </div>
+</dialog>
+<dialog class="legal-dialog" id="privacy-dialog" aria-labelledby="privacy-title">
+    <div class="legal-dialog-content">
+        <div class="legal-dialog-heading"><span class="auth-kicker">Amor Palace Hotel</span><button class="legal-dialog-close" type="button" data-close-legal aria-label="Close Privacy Policy">&times;</button></div>
+        <h2 id="privacy-title">Privacy Policy</h2>
+        <p>We use the information you provide to create your account, manage reservations, contact you about your stay, and provide hotel support.</p>
+        <h3>Information we collect</h3>
+        <p>This may include your name, email address, optional mobile number, reservation details, and requests submitted during booking.</p>
+        <h3>How we protect your information</h3>
+        <p>Your account information is used for hotel operations and is not sold. Payment details should be entered only through the payment provider shown during checkout.</p>
+        <h3>Your choices</h3>
+        <p>You may contact the hotel to ask about your account information or request help with your reservations.</p>
+        <button class="btn legal-dialog-action" type="button" data-close-legal>Close</button>
+    </div>
+</dialog>
+<script>
+document.querySelectorAll('[data-legal-dialog]').forEach((trigger) => {
+    trigger.addEventListener('click', () => document.getElementById(trigger.dataset.legalDialog)?.showModal());
+});
+document.querySelectorAll('[data-close-legal]').forEach((button) => {
+    button.addEventListener('click', () => button.closest('dialog')?.close());
+});
+document.querySelectorAll('.legal-dialog').forEach((dialog) => {
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+    });
+});
+</script>
+{% endblock %}

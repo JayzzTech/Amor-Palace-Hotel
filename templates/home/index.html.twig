@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<section class="hero home-hero-carousel" data-home-carousel data-carousel-speed="5500">
+    <div class="hero-backdrop hero-carousel-slide is-active" aria-hidden="false"></div>
+    <div class="hero-backdrop hero-carousel-slide hero-slide-two" aria-hidden="true"></div>
+    <div class="hero-backdrop hero-carousel-slide hero-slide-three" aria-hidden="true"></div>
+    <div class="hero-carousel-progress" aria-label="Homepage slides">
+        <button class="hero-carousel-dot is-active" type="button" data-slide="0" aria-label="Show first hotel photo"></button>
+        <button class="hero-carousel-dot" type="button" data-slide="1" aria-label="Show second hotel photo"></button>
+        <button class="hero-carousel-dot" type="button" data-slide="2" aria-label="Show third hotel photo"></button>
+    </div>
+    <div class="wrap hero-content">
+        <p class="hero-kicker">The Amor Palace Collection</p>
+        <h1>Rest, <span>beautifully</span> kept.</h1>
+        <p>Thoughtful stays across Pampanga, each with its own character, warm hospitality, and a room made for slowing down.</p>
+        <div class="hero-actions">
+            <a class="btn" href="#branches">Explore our hotels</a>
+            <a class="hero-text-link" href="#collection">Discover the collection <span aria-hidden="true">→</span></a>
+        </div>
+    </div>
+</section>
+<section class="collection-note" id="collection" aria-label="Hotel collection highlights">
+    <div class="wrap collection-note-grid">
+        <div><strong>{{ branches|length }}</strong><span>Distinctive hotels</span></div>
+        <div><strong>1</strong><span>Seamless booking experience</span></div>
+        <div><strong>24/7</strong><span>Warm local hospitality</span></div>
+    </div>
+</section>
+<section class="section" id="branches">
+    <div class="wrap">
+        <div class="branch-selector-heading">
+            <div><p class="eyebrow dark">Choose your destination</p><h2>Where would you like to stay?</h2></div>
+            <p class="muted">Select a hotel to see its rooms and live availability.</p>
+        </div>
+        <div class="cards branch-selector-grid">
+            {% for b in branches %}
+            <a class="card branch-card" href="{{ path('app_branch', {id: b.id}) }}">
+                <div class="visual branch-card-visual v{{ loop.index0 % 3 }}">
+                    <span>{{ b.city }}</span>
+                    {% if minPrices[b.id] is defined %}<span class="branch-availability">Rooms available</span>{% endif %}
+                </div>
+                <div class="card-body branch-card-body">
+                    <div class="branch-card-copy">
+                        <h3>{{ b.name }}</h3>
+                        <p class="branch-tagline"><strong>{{ b.tagline }}</strong></p>
+                        <p class="muted small branch-address">{{ b.address }}</p>
+                    </div>
+                    <div class="branch-card-footer">
+                        <div class="branch-price">
+                            {% if minPrices[b.id] is defined %}
+                                <span>From</span>
+                                <strong class="price">₱{{ minPrices[b.id]|number_format }}</strong>
+                                <span>per night</span>
+                            {% endif %}
+                        </div>
+                        <span class="btn btn-sm branch-card-action">View rooms</span>
+                    </div>
+                </div>
+            </a>
+            {% else %}
+                <p>No branches yet. Run <code>php bin/console app:seed</code> to load demo data.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<script>
+document.querySelectorAll('[data-home-carousel]').forEach((carousel) => {
+    const slides = [...carousel.querySelectorAll('.hero-carousel-slide')];
+    const dots = [...carousel.querySelectorAll('.hero-carousel-dot')];
+    let current = 0;
+    let timer;
+
+    const showSlide = (index) => {
+        current = (index + slides.length) % slides.length;
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('is-active', i === current);
+            slide.setAttribute('aria-hidden', String(i !== current));
+        });
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('is-active', i === current);
+            dot.setAttribute('aria-current', i === current ? 'true' : 'false');
+        });
+    };
+    const restart = () => {
+        window.clearInterval(timer);
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            timer = window.setInterval(() => showSlide(current + 1), Number(carousel.dataset.carouselSpeed || 5500));
+        }
+    };
+    dots.forEach((dot, index) => dot.addEventListener('click', () => { showSlide(index); restart(); }));
+    carousel.addEventListener('mouseenter', () => window.clearInterval(timer));
+    carousel.addEventListener('mouseleave', restart);
+    restart();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ branch.name }} · Amor Palace Hotel{% endblock %}
+{% block body %}
+<section class="page-head branch-hero">
+    <div class="wrap branch-hero-content">
+        <a class="breadcrumb" href="{{ path('app_home') }}">All hotels</a>
+        <p class="eyebrow">Amor Palace Collection</p>
+        <h1>{{ branch.name }}</h1>
+        <p>{{ branch.description }}</p>
+        <div class="branch-meta">
+            <a href="https://www.google.com/maps/search/?api=1&amp;query={{ branch.address|url_encode }}" target="_blank" rel="noopener"><span aria-hidden="true">⌖</span><span>{{ branch.address }}<small>Directions</small></span></a>
+            <a href="tel:{{ branch.phone }}"><span aria-hidden="true">☎</span><span>{{ branch.phone }}<small>Call hotel</small></span></a>
+        </div>
+    </div>
+</section>
+<div class="wrap">
+    {% if notice %}<div class="flash">{{ notice }}</div>{% endif %}
+    <section class="branch-details-grid" aria-label="Essential hotel information">
+        <div class="branch-detail-card">
+            <span class="panel-kicker">Guest rating</span>
+            <div class="branch-rating-summary"><strong>4.8</strong><span>★★★★★<small>Excellent guest experience</small></span></div>
+        </div>
+        <div class="branch-detail-card">
+            <span class="panel-kicker">Arrival & departure</span>
+            <div class="branch-time-row"><span>Check-in</span><strong>2:00 PM</strong></div>
+            <div class="branch-time-row"><span>Check-out</span><strong>12:00 PM</strong></div>
+        </div>
+        <div class="branch-detail-card">
+            <span class="panel-kicker">Important rules</span>
+            <ul><li>Valid ID required at check-in.</li><li>No smoking inside rooms.</li><li>Pets require approval.</li><li>Cancel online before check-in.</li></ul>
+        </div>
+    </section>
+    <div class="availability-heading room-selection-heading">
+        <div><p class="eyebrow dark">Choose your dates</p><h2>Find your stay</h2></div>
+        <span class="stay-summary"><strong>{{ nights }} {{ nights == 1 ? 'night' : 'nights' }}</strong><span>{{ guests }} {{ guests == 1 ? 'guest' : 'guests' }}</span></span>
+    </div>
+    <form class="stay-search" method="get" aria-label="Search room availability">
+        <div><label for="stay-in">Check-in</label><input id="stay-in" type="date" name="in" min="{{ today|date('Y-m-d') }}" value="{{ in|date('Y-m-d') }}" required></div>
+        <div><label for="stay-out">Check-out</label><input id="stay-out" type="date" name="out" min="{{ in|date('Y-m-d') }}" value="{{ out|date('Y-m-d') }}" required></div>
+        <div><label for="stay-guests">Guests</label><select id="stay-guests" name="guests">{% for count in 1..10 %}<option value="{{ count }}" {{ guests == count ? 'selected' : '' }}>{{ count }} {{ count == 1 ? 'guest' : 'guests' }}</option>{% endfor %}</select></div>
+        {% if selectedType %}<input type="hidden" name="room_type" value="{{ selectedType }}">{% endif %}
+        <button class="btn stay-search-button" type="submit">Check availability</button>
+    </form>
+    {% if selectedType is null %}
+    <div class="room-type-cards">
+        {% for roomType in ['Tryke Room', 'Standard Room'] %}
+        {% set stats = roomTypeStats[roomType] %}
+        <a class="room-type-card {{ selectedType == roomType ? 'is-selected' : '' }}" href="{{ path('app_branch', {id: branch.id, in: in|date('Y-m-d'), out: out|date('Y-m-d'), guests: guests, room_type: roomType}) }}">
+            <div class="room-type-card-banner {{ roomType == 'Tryke Room' ? 'tryke-banner' : 'standard-banner' }}">{{ roomType }}</div>
+            <div class="room-type-card-content">
+                <span class="room-count">{{ stats.count }} {{ stats.count == 1 ? 'room' : 'rooms' }} available</span>
+                <h3>{{ roomType }}</h3>
+                <p class="room-capacity"><strong>Maximum {{ stats.maxGuests }} guests</strong></p>
+                <p class="room-type-description">{{ stats.description }}</p>
+                <ul class="room-inclusions">
+                    {% for amenity in stats.amenities %}<li>{{ amenity }}</li>{% endfor %}
+                </ul>
+                <span class="room-type-select">View available rooms →</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if rooms|length == 0 %}
+    <div class="panel no-room-results">
+        <h3>No rooms free for these dates</h3>
+        <p>Try different dates or fewer guests, or look at <a href="{{ path('app_home') }}#branches">another branch</a>.</p>
+    </div>
+    {% else %}
+    {% for roomType, typeRooms in roomGroups %}
+        {% if selectedType is not null and roomType == selectedType %}
+        <section class="room-type-section selected-room-type">
+            {% set carouselImages = roomType == 'Tryke Room'
+                ? ['https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1800&q=85', 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1800&q=85', 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1800&q=85', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1800&q=85', 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1800&q=85']
+                : ['https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1800&q=85', 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1800&q=85', 'https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1800&q=85', 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1800&q=85', 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1800&q=85'] %}
+            <div class="selected-room-banner room-image-carousel" data-carousel data-carousel-speed="5000">
+                <div class="room-carousel-slides" aria-live="off">
+                    {% for image in carouselImages %}
+                    <div class="room-carousel-slide {{ loop.first ? 'is-active' : '' }}" style="background-image: url('{{ image }}')" aria-hidden="{{ loop.first ? 'false' : 'true' }}"></div>
+                    {% endfor %}
+                </div>
+                <div class="selected-room-banner-content"><div><span>Selected room type</span><h2>{{ roomType }}</h2><p>{{ typeRooms|length }} available</p></div></div>
+                <button class="room-carousel-arrow room-carousel-prev" type="button" aria-label="Previous room photo">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" /></svg>
+                </button>
+                <button class="room-carousel-arrow room-carousel-next" type="button" aria-label="Next room photo">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" /></svg>
+                </button>
+                <div class="room-carousel-dots" aria-label="Room photos">
+                    {% for image in carouselImages %}<button class="room-carousel-dot {{ loop.first ? 'is-active' : '' }}" type="button" data-slide="{{ loop.index0 }}" aria-label="Show room photo {{ loop.index }}"></button>{% endfor %}
+                </div>
+            </div>
+            <a class="back-room-types" href="{{ path('app_branch', {id: branch.id, in: in|date('Y-m-d'), out: out|date('Y-m-d'), guests: guests}) }}">← Choose another room type</a>
+            <div class="room-type-heading">
+                <div><p class="eyebrow dark">Room type</p><h3>{{ roomType }}</h3></div>
+                <span>{{ typeRooms|length }} available</span>
+            </div>
+            <div class="cards branch-room-grid">
+            {% for room in typeRooms %}
+                <article class="card room-choice-card">
+                    <a class="room-choice-card-link" href="{{ path('app_book', {id: room.id, in: in|date('Y-m-d'), out: out|date('Y-m-d'), guests: guests}) }}" aria-label="Reserve {{ room.type }}, Room {{ room.number }}"></a>
+                    <div class="visual room-photo room-photo-{{ loop.index0 % 4 }}"><span>{{ room.type }}</span></div>
+                    <div class="card-body">
+                        <p class="muted small">Room {{ room.number }} · Sleeps {{ room.capacity }}</p>
+                        <p>{{ room.description }}</p>
+                        <ul class="tags">{% for a in room.amenities|split(',') %}<li>{{ a|trim }}</li>{% endfor %}</ul>
+                        <div class="room-footer">
+                            <div><span class="price">₱{{ room.pricePerNight|number_format }}</span> <span class="muted small">a night</span><br>
+                                <span class="small">₱{{ (room.pricePerNight * nights)|number_format }} for {{ nights }} {{ nights == 1 ? 'night' : 'nights' }}</span></div>
+                            <a class="btn" href="{{ path('app_book', {id: room.id, in: in|date('Y-m-d'), out: out|date('Y-m-d'), guests: guests}) }}">Reserve</a>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+            </div>
+            {% if typeRooms|length == 0 %}<p class="muted">No {{ roomType }} rooms are available for these dates.</p>{% endif %}
+        </section>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+</div>
+<script>
+document.querySelectorAll('[data-carousel]').forEach((carousel) => {
+    const slides = [...carousel.querySelectorAll('.room-carousel-slide')];
+    const dots = [...carousel.querySelectorAll('.room-carousel-dot')];
+    const previous = carousel.querySelector('.room-carousel-prev');
+    const next = carousel.querySelector('.room-carousel-next');
+    let current = 0;
+    let timer;
+    let touchStartX = null;
+
+    const showSlide = (index) => {
+        current = (index + slides.length) % slides.length;
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('is-active', i === current);
+            slide.setAttribute('aria-hidden', String(i !== current));
+        });
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('is-active', i === current);
+            dot.setAttribute('aria-current', i === current ? 'true' : 'false');
+        });
+    };
+    const restart = () => {
+        window.clearInterval(timer);
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            timer = window.setInterval(() => showSlide(current + 1), Number(carousel.dataset.carouselSpeed || 5000));
+        }
+    };
+    previous?.addEventListener('click', () => { showSlide(current - 1); restart(); });
+    next?.addEventListener('click', () => { showSlide(current + 1); restart(); });
+    dots.forEach((dot, index) => dot.addEventListener('click', () => { showSlide(index); restart(); }));
+    carousel.addEventListener('mouseenter', () => window.clearInterval(timer));
+    carousel.addEventListener('mouseleave', restart);
+    carousel.addEventListener('touchstart', (event) => {
+        touchStartX = event.changedTouches[0].clientX;
+        window.clearInterval(timer);
+    }, { passive: true });
+    carousel.addEventListener('touchend', (event) => {
+        if (touchStartX === null) return;
+        const distance = event.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(distance) > 45) showSlide(current + (distance < 0 ? 1 : -1));
+        touchStartX = null;
+        restart();
+    }, { passive: true });
+    restart();
+});
+</script>
+{% endblock %}

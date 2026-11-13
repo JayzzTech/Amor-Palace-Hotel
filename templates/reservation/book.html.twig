@@ -1,0 +1,184 @@
+{% extends 'base.html.twig' %}
+{% block title %}Reserve Room {{ room.number }} · Amor Palace Hotel{% endblock %}
+{% block body %}
+<section class="section booking-page"><div class="wrap two-col booking-layout">
+    <div class="panel">
+        <span class="auth-kicker">Secure your stay</span>
+        <h1>Reserve your room</h1>
+        {% if errors %}<div class="alert-error"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+        <form method="post" id="reservation-form">
+            <fieldset class="stay-type-picker">
+                <legend>Stay type</legend>
+                <label class="stay-type-option"><input type="radio" name="stay_type" value="short" {{ stayType == 'short' ? 'checked' : '' }}> <span><b>Short Stay</b><small>Pay for hours</small></span></label>
+                <label class="stay-type-option"><input type="radio" name="stay_type" value="long" {{ stayType == 'long' ? 'checked' : '' }}> <span><b>Long Stay</b><small>Choose dates</small></span></label>
+            </fieldset>
+
+            <div class="grid-form stay-grid">
+                <div><label for="in">Check-in</label><input id="in" type="datetime-local" name="in" min="{{ today|date('Y-m-d\\TH:i') }}" value="{{ in|date('Y-m-d\\TH:i') }}" required></div>
+                <div id="short-duration-wrap"><label for="short-hours">Short stay duration</label><select id="short-hours" name="short_hours"><option value="3" {{ shortHours == 3 ? 'selected' : '' }}>3 hours</option><option value="6" {{ shortHours == 6 ? 'selected' : '' }}>6 hours</option><option value="9" {{ shortHours == 9 ? 'selected' : '' }}>9 hours</option><option value="12" {{ shortHours == 12 ? 'selected' : '' }}>12 hours</option><option value="24" {{ shortHours == 24 ? 'selected' : '' }}>24 hours</option></select></div>
+                <div id="checkout-wrap"><label for="out">Check-out</label><div class="checkout-with-rooms"><input id="out" type="date" name="out" min="{{ in|date('Y-m-d') }}" value="{{ out|date('Y-m-d') }}" required><button class="btn btn-ghost available-rooms-button" type="button" id="available-rooms-button">Available rooms <strong>{{ availableRoomCount }}</strong></button></div><div class="available-room-popover" id="available-room-popover" hidden>{{ availableRoomCount }} {{ availableRoomCount == 1 ? 'room is' : 'rooms are' }} available for this stay.</div></div>
+            </div>
+
+            <fieldset class="discount-picker">
+                <legend>Discount</legend>
+                <label><input type="radio" name="discount_type" value="none" {{ discountType == 'none' ? 'checked' : '' }}> Regular</label>
+                <label><input type="radio" name="discount_type" value="pwd" {{ discountType == 'pwd' ? 'checked' : '' }}> PWD (20%)</label>
+                <label><input type="radio" name="discount_type" value="senior" {{ discountType == 'senior' ? 'checked' : '' }}> Senior Citizen (20%)</label>
+            </fieldset>
+
+            <div class="booking-extra-section">
+                <div class="booking-extra-heading"><div><span class="panel-kicker">Guests & extras</span><h3>Add to your stay</h3></div><span class="small muted">Maximum {{ room.capacity }} guests in this room</span></div>
+                <div class="extra-person-card">
+                    <div><b>Additional person</b><p class="small muted">₱500 per person</p></div>
+                    <div class="quantity-control"><button type="button" data-quantity="person" data-step="-1" aria-label="Remove additional person">−</button><input id="additional-guests" name="additional_guests" type="number" min="0" max="{{ max(room.capacity - 1, 0) }}" value="{{ additionalGuests }}" readonly><button type="button" data-quantity="person" data-step="1" aria-label="Add additional person">+</button></div>
+                </div>
+                <div class="extras-list">
+                    {% set extras = {'towel':'Extra towel','toothbrush':'Extra toothbrush','slippers':'Extra slippers','water':'Bottled water','pillow':'Extra pillow'} %}
+                    {% set prices = {'towel':150,'toothbrush':50,'slippers':100,'water':80,'pillow':200} %}
+                    {% for key,label in extras %}
+                    <div class="extra-option" data-price="{{ prices[key] }}">
+                        <label for="extra-{{ key }}"><input id="extra-{{ key }}" type="checkbox" name="extras[{{ key }}]" value="1" {{ selectedExtras[key] ?? false ? 'checked' : '' }}><span><b>{{ label }}</b><small>₱{{ prices[key]|number_format }}</small></span></label>
+                        <div class="quantity-control compact"><button type="button" data-extra="{{ key }}" data-step="-1" aria-label="Remove {{ label }}">−</button><input id="qty-{{ key }}" name="extra_qty[{{ key }}]" type="number" min="0" max="10" value="{{ selectedExtras[key] ?? 0 }}" readonly><button type="button" data-extra="{{ key }}" data-step="1" aria-label="Add {{ label }}">+</button></div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="field"><label for="notes">Requests for the hotel (optional)</label><textarea id="notes" name="notes" rows="3" placeholder="Late arrival, extra pillows, celebrating something special">{{ notes }}</textarea></div>
+            <input type="hidden" name="_token" value="{{ csrf_token('app') }}">
+            <input type="hidden" name="rules_accepted" id="rules-accepted" value="0">
+        </form>
+        <p class="small muted" style="margin-top:1rem">Online payment is required before your reservation is confirmed. Reservations can be cancelled online before check-in.</p>
+    </div>
+    <aside class="card booking-receipt" aria-label="Booking receipt">
+        <div class="card-body booking-receipt-body">
+            <div class="booking-receipt-heading">
+                <div><span class="panel-kicker">Your reservation</span><h2>Booking receipt</h2></div>
+                <span class="receipt-status">Online payment required</span>
+            </div>
+            <h3>{{ room.branch.name }}</h3>
+            <p class="muted small">Room {{ room.number }}, sleeps {{ room.capacity }}</p>
+            <table><tbody>
+                <tr><td>Room</td><td id="summary-stay">{{ nights }} {{ nights == 1 ? 'night' : 'nights' }}</td></tr>
+                <tr><td>Room subtotal</td><td id="room-subtotal">₱{{ roomSubtotal|number_format }}</td></tr>
+                <tr><td>Additional guests</td><td id="persons-subtotal">₱{{ personsTotal|number_format }}</td></tr>
+                <tr><td>Extras</td><td id="extras-subtotal">₱{{ extrasTotal|number_format }}</td></tr>
+                <tr><td>Discount</td><td id="discount-subtotal">− ₱{{ discountTotal|number_format }}</td></tr>
+                <tr><td><b>Subtotal</b></td><td><span class="price" id="booking-subtotal">₱{{ total|number_format }}</span></td></tr>
+            </tbody></table>
+        </div>
+    </aside>
+    <div class="booking-actions">
+        <button class="btn" type="submit" form="reservation-form" id="confirm-reservation-button">Continue to payment</button>
+        <a class="btn btn-ghost" href="{{ path('app_branch', {id: room.branch.id, in: in|date('Y-m-d'), out: out|date('Y-m-d'), guests: guests}) }}">Back to rooms</a>
+    </div>
+</div></section>
+<dialog class="rules-dialog" id="rules-dialog">
+    <div class="rules-dialog-content">
+        <span class="auth-kicker">Before you continue</span>
+        <h2>Rules and Regulations</h2>
+        <ul>
+            <li>Valid identification and the discount ID (if applicable) must be presented during check-in.</li>
+            <li>Check-in time is 2:00 PM; check-out time is 12:00 PM.</li>
+            <li>No smoking is allowed inside rooms. Pets require prior hotel approval.</li>
+            <li>Guests are responsible for room damage and must observe quiet hours from 10:00 PM.</li>
+            <li>Reservations are subject to hotel confirmation and applicable cancellation policies.</li>
+        </ul>
+        <label class="rules-accept"><input type="checkbox" id="rules-checkbox"> I have read and accept the Rules and Regulations.</label>
+        <div class="dialog-actions"><button class="btn btn-ghost" type="button" id="rules-cancel">Cancel</button><button class="btn" type="button" id="rules-accept" disabled>Accept &amp; continue</button></div>
+    </div>
+</dialog>
+<script>
+(() => {
+    const roomRate = {{ room.pricePerNight }};
+    const form = document.getElementById('reservation-form');
+    const personInput = document.getElementById('additional-guests');
+    const prices = {towel:150, toothbrush:50, slippers:100, water:80, pillow:200};
+    const peso = value => '₱' + new Intl.NumberFormat().format(Math.round(value));
+    const stayRadios = [...form.querySelectorAll('[name="stay_type"]')];
+    const out = document.getElementById('out');
+    const hours = document.getElementById('short-hours');
+    const stayGrid = form.querySelector('.stay-grid');
+
+    function syncStay() {
+        const short = stayRadios.find(r => r.checked)?.value === 'short';
+        document.getElementById('short-duration-wrap').classList.toggle('is-hidden', !short);
+        document.getElementById('checkout-wrap').classList.toggle('is-hidden', short);
+        if (short) {
+            availablePopover.hidden = true;
+        }
+        stayGrid.classList.toggle('is-short-stay', short);
+        stayGrid.classList.toggle('is-long-stay', !short);
+        out.disabled = short;
+        hours.disabled = !short;
+        document.getElementById('summary-stay').textContent = short ? hours.value + ' hours' : out.value;
+    }
+
+    function updateTotal() {
+        const short = stayRadios.find(r => r.checked)?.value === 'short';
+        let roomSubtotal;
+        if (short) {
+            roomSubtotal = Math.ceil(roomRate / 24 * Number(hours.value));
+        } else {
+            const inDate = new Date(document.getElementById('in').value.slice(0, 10) + 'T00:00');
+            const outDate = new Date(out.value + 'T00:00');
+            const nights = Math.max(0, Math.ceil((outDate - inDate) / 86400000));
+            roomSubtotal = roomRate * nights;
+            document.getElementById('summary-stay').textContent = nights + ' night' + (nights === 1 ? '' : 's');
+        }
+        const personsTotal = Number(personInput.value || 0) * 500;
+        let extrasTotal = 0;
+        Object.keys(prices).forEach(key => {
+            const qty = Number(document.getElementById('qty-' + key).value || 0);
+            extrasTotal += qty * prices[key];
+            const check = document.getElementById('extra-' + key);
+            check.checked = qty > 0;
+        });
+        document.getElementById('room-subtotal').textContent = peso(roomSubtotal);
+        const discount = form.querySelector('[name="discount_type"]:checked')?.value;
+        const discountTotal = discount === 'pwd' || discount === 'senior' ? Math.round((roomSubtotal + personsTotal + extrasTotal) * .20) : 0;
+        document.getElementById('persons-subtotal').textContent = peso(personsTotal);
+        document.getElementById('extras-subtotal').textContent = peso(extrasTotal);
+        document.getElementById('discount-subtotal').textContent = '− ' + peso(discountTotal);
+        document.getElementById('booking-subtotal').textContent = peso(roomSubtotal + personsTotal + extrasTotal - discountTotal);
+    }
+
+    form.querySelectorAll('[data-quantity="person"]').forEach(button => button.addEventListener('click', () => {
+        const next = Math.min(Number(personInput.max), Math.max(0, Number(personInput.value) + Number(button.dataset.step)));
+        personInput.value = next;
+        updateTotal();
+    }));
+    form.querySelectorAll('[data-extra]').forEach(button => button.addEventListener('click', () => {
+        const input = document.getElementById('qty-' + button.dataset.extra);
+        input.value = Math.min(10, Math.max(0, Number(input.value) + Number(button.dataset.step)));
+        updateTotal();
+    }));
+    stayRadios.forEach(radio => radio.addEventListener('change', () => { syncStay(); updateTotal(); }));
+    [hours, out, document.getElementById('in')].forEach(input => input.addEventListener('change', () => { syncStay(); updateTotal(); }));
+    form.querySelectorAll('[name="discount_type"]').forEach(radio => radio.addEventListener('change', updateTotal));
+
+    const availableButton = document.getElementById('available-rooms-button');
+    const availablePopover = document.getElementById('available-room-popover');
+    availableButton?.addEventListener('click', () => {
+        availablePopover.hidden = !availablePopover.hidden;
+        availablePopover.classList.toggle('is-open', !availablePopover.hidden);
+    });
+
+    const rulesDialog = document.getElementById('rules-dialog');
+    const rulesCheckbox = document.getElementById('rules-checkbox');
+    const rulesAccept = document.getElementById('rules-accept');
+    document.getElementById('confirm-reservation-button')?.addEventListener('click', event => {
+        event.preventDefault();
+        rulesDialog.showModal();
+    });
+    rulesCheckbox.addEventListener('change', () => { rulesAccept.disabled = !rulesCheckbox.checked; });
+    document.getElementById('rules-cancel')?.addEventListener('click', () => rulesDialog.close());
+    rulesAccept.addEventListener('click', () => {
+        document.getElementById('rules-accepted').value = '1';
+        rulesDialog.close();
+        form.requestSubmit();
+    });
+    syncStay(); updateTotal();
+})();
+</script>
+{% endblock %}

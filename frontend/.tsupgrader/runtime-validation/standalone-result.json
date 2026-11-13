@@ -1,0 +1,111 @@
+{
+  "planHash": "e920fee894584f6c8f098cac07fb696af121e8dbb8f46aa4dab679705c4a231a",
+  "phase": "standalone",
+  "recordedAtUtc": "2026-11-11T13:17:57.0299340Z",
+  "retryCount": 3,
+  "resetBaseline": false,
+  "complete": true,
+  "result": {
+    "setupSucceeded": true,
+    "setupDurationMs": 4667,
+    "setupFailureOutput": null,
+    "assertions": [
+      {
+        "name": "frontend-build",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E amor-palace-frontend@1.0.0 build\r\n\u003E vite build\r\n\r\n\u001B[36mvite v8.3.6 \u001B[32mbuilding client environment for production...\u001B[36m\u001B[39m\r\ntransforming...\r\n\r\n/media/site/mi-amor-room-3.jpg referenced in /media/site/mi-amor-room-3.jpg didn\u0027t resolve at build time, it will remain unchanged to be resolved at runtime\r\n\r\n/media/site/amor-loco-room-1.jpg referenced in /media/site/amor-loco-room-1.jpg didn\u0027t resolve at build time, it will remain unchanged to be resolved at runtime\r\n\r\n/media/site/mi-amor-room-2.jpg referenced in /media/site/mi-amor-room-2.jpg didn\u0027t resolve at build time, it will remain unchanged to be resolved at runtime\r\n\r\n/media/site/amor-loco-room-2.jpg referenced in /media/site/amor-loco-room-2.jpg didn\u0027t resolve at build time, it will remain unchanged to be resolved at runtime\r\n\r\n/media/site/amor-loco-exterior.jpg referenced in /media/site/amor-loco-exterior.jpg didn\u0027t resolve at build time, it will remain unchanged to be resolved at runtime\r\n\r\n/media/site/amor-loco-room-3.jpg referenced in /media/site/amor-loco-room-3.jpg didn\u0027t resolve at build time, it will remain unchanged to be resolved at runtime\r\n\r\n/media/site/mi-amor-room-1.jpg referenced in /media/site/mi-amor-room-1.jpg didn\u0027t resolve at build time, it will remain unchanged to be resolved at runtime\r\n\u2713 41 modules transformed.\r\nrendering chunks...\r\ncomputing gzip size...\r\n../public/react/index.html                   0.44 kB \u2502 gzip:  0.28 kB\r\n../public/react/assets/index-Crh3NTVE.css  115.40 kB \u2502 gzip: 22.28 kB\r\n../public/react/assets/index-DMwqaK0G.js   331.21 kB \u2502 gzip: 97.28 kB\r\n\r\n\u001B[32m\u2713 built in 465ms\u001B[39m\r\n",
+        "durationMs": 2561
+      },
+      {
+        "name": "home-page-served",
+        "kind": "http-probe",
+        "verificationMethod": "http-status",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": null,
+        "outputSample": "HTTP 200\n\u003C!doctype html\u003E\n\u003Chtml lang=\u0022en\u0022\u003E\n    \u003Chead\u003E\n      \u003Cscript type=\u0022module\u0022\u003Eimport { injectIntoGlobalHook } from \u0022/@react-refresh\u0022;\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () =\u003E {};\nwindow.$RefreshSig$ = () =\u003E (type) =\u003E type;\u003C/script\u003E\n\n      \u003Cscript type=\u0022module\u0022 src=\u0022/@vite/client\u0022\u003E\u003C/script\u003E\n\n        \u003Cmeta charset=\u0022UTF-8\u0022 /\u003E\n        \u003Cmeta name=\u0022viewport\u0022 content=\u0022width=device-width, initial-scale=1.0\u0022 /\u003E\n        \u003Ctitle\u003EAmor Palace Hotel\u003C/title\u003E\n    \u003C/head\u003E\n    \u003Cbody\u003E\n        \u003Cdiv id=\u0022root\u0022\u003E\u003C/div\u003E\n        \u003Cscript type=\u0022module\u0022 src=\u0022/src/main.jsx\u0022\u003E\u003C/script\u003E\n    \u003C/body\u003E\n\u003C/html\u003E\n\n--- server output ---\n\r\n  \u001B[32m\u001B[1mVITE\u001B[22m v8.3.6\u001B[39m  \u001B[2mready in \u001B[0m\u001B[1m455\u001B[22m\u001B[2m\u001B[0m ms\u001B[22m\r\n\r\n  \u001B[32m\u279C\u001B[39m  \u001B[1mLocal\u001B[22m:   \u001B[36mhttp://127.0.0.1:\u001B[1m4173\u001B[22m/\u001B[39m\r\n",
+        "durationMs": 1148
+      },
+      {
+        "name": "tests-pass",
+        "kind": "process",
+        "verificationMethod": "test-results",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E amor-palace-frontend@1.0.0 test\r\n\u003E vitest run\r\n\r\n\r\n RUN  v5.1.0 C:/Users/Jayzz/Schools/hotel_1/Amor-Palace-Hotel/frontend\r\n\r\n\r\n Test Files  1 passed (1)\r\n      Tests  3 passed (3)\r\n   Start at  21:17:56\r\n   Duration  565ms (transform 54%, import 28%, worker 10%, tests 7%)\r\n\r\n",
+        "durationMs": 2930,
+        "testResults": {
+          "testFramework": "vitest",
+          "runnerDetectedFrom": "package_json",
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "testsFailed": 0,
+          "testsSkipped": 0,
+          "parseFailed": false
+        }
+      }
+    ],
+    "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "ci"
+        ],
+        "cwd": "C:\\Users\\Jayzz\\Schools\\hotel_1\\Amor-Palace-Hotel\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "frontend-build",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "run",
+          "build"
+        ],
+        "cwd": "C:\\Users\\Jayzz\\Schools\\hotel_1\\Amor-Palace-Hotel\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "home-page-served",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\node.EXE",
+        "args": [
+          "node_modules/vite/bin/vite.js",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "4173"
+        ],
+        "cwd": "C:\\Users\\Jayzz\\Schools\\hotel_1\\Amor-Palace-Hotel\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "tests-pass",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "test"
+        ],
+        "cwd": "C:\\Users\\Jayzz\\Schools\\hotel_1\\Amor-Palace-Hotel\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      }
+    ]
+  }
+}
